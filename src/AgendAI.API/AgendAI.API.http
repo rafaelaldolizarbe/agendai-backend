@@ -1,0 +1,6 @@
+@AgendAI.API_HostAddress = http://localhost:5080
+
+GET {{AgendAI.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/AgendAI.API/AgendAI.API.csproj" />
+    <Project Path="src/AgendAI.Core/AgendAI.Core.csproj" />
+    <Project Path="src/AgendAI.Infrastructure/AgendAI.Infrastructure.csproj" />
+    <Project Path="src/AgendAI.Worker/AgendAI.Worker.csproj" />
+  </Folder>
+</Solution>

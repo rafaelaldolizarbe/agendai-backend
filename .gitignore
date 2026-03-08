@@ -1,0 +1,18 @@
+# Build
+bin/
+obj/
+
+# Secrets
+appsettings.Development.json
+appsettings.Production.json
+docker/.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.user
+*.suo
