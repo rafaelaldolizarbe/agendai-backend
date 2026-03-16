@@ -8,7 +8,7 @@ public static class SchedulingEndpoints
 {
     public static RouteGroupBuilder MapSchedulingEndpoints(this RouteGroupBuilder group)
     {
-        // GET /api/v1/scheduling
+        // GET /api/v1/scheduling — owner e hairdresser
         group.MapGet("/", async (AgendAIDbContext db) =>
         {
             var appointments = await db.Appointments
@@ -16,9 +16,9 @@ public static class SchedulingEndpoints
                 .ToListAsync();
 
             return Results.Ok(appointments);
-        }).RequireAuthorization();
+        }).RequireAuthorization("StaffOnly");
 
-        // GET /api/v1/scheduling/{id}
+        // GET /api/v1/scheduling/{id} — owner e hairdresser
         group.MapGet("/{id:guid}", async (Guid id, AgendAIDbContext db) =>
         {
             var appointment = await db.Appointments.FindAsync(id);
@@ -26,9 +26,9 @@ public static class SchedulingEndpoints
             return appointment is null
                 ? Results.NotFound()
                 : Results.Ok(appointment);
-        }).RequireAuthorization();
+        }).RequireAuthorization("StaffOnly");
 
-        // POST /api/v1/scheduling
+        // POST /api/v1/scheduling — qualquer autenticado pode agendar
         group.MapPost("/", async (CreateAppointmentRequest request, AgendAIDbContext db) =>
         {
             var appointment = Appointment.Create(
@@ -43,9 +43,9 @@ public static class SchedulingEndpoints
             await db.SaveChangesAsync();
 
             return Results.Created($"/api/v1/scheduling/{appointment.Id}", appointment);
-        }).RequireAuthorization();
+        }).RequireAuthorization("AuthenticatedAny");
 
-        // PATCH /api/v1/scheduling/{id}/reschedule
+        // PATCH /api/v1/scheduling/{id}/reschedule — owner e hairdresser
         group.MapPatch("/{id:guid}/reschedule", async (Guid id, RescheduleRequest request, AgendAIDbContext db) =>
         {
             var appointment = await db.Appointments.FindAsync(id);
@@ -57,9 +57,9 @@ public static class SchedulingEndpoints
             await db.SaveChangesAsync();
 
             return Results.Ok(appointment);
-        }).RequireAuthorization();
+        }).RequireAuthorization("StaffOnly");
 
-        // PATCH /api/v1/scheduling/{id}/cancel
+        // PATCH /api/v1/scheduling/{id}/cancel — owner e hairdresser
         group.MapPatch("/{id:guid}/cancel", async (Guid id, AgendAIDbContext db) =>
         {
             var appointment = await db.Appointments.FindAsync(id);
@@ -71,7 +71,7 @@ public static class SchedulingEndpoints
             await db.SaveChangesAsync();
 
             return Results.Ok(appointment);
-        }).RequireAuthorization();
+        }).RequireAuthorization("StaffOnly");
 
         return group;
     }
