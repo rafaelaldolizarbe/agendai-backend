@@ -8,7 +8,7 @@ public static class SchedulingEndpoints
 {
     public static RouteGroupBuilder MapSchedulingEndpoints(this RouteGroupBuilder group)
     {
-        // GET /api/v1/scheduling — owner e hairdresser podem listar
+        // GET /api/v1/scheduling
         group.MapGet("/", async (AgendAIDbContext db) =>
         {
             var appointments = await db.Appointments
@@ -28,14 +28,14 @@ public static class SchedulingEndpoints
                 : Results.Ok(appointment);
         }).RequireAuthorization();
 
-        // POST /api/v1/scheduling — qualquer autenticado pode agendar
+        // POST /api/v1/scheduling
         group.MapPost("/", async (CreateAppointmentRequest request, AgendAIDbContext db) =>
         {
             var appointment = Appointment.Create(
-                request.ClientId,
+                request.BranchId,
                 request.StaffId,
-                request.TenantId,
-                request.Service,
+                request.ClientId,
+                request.StaffServiceId,
                 request.ScheduledAt,
                 request.CreatedVia ?? "web");
 
@@ -79,10 +79,10 @@ public static class SchedulingEndpoints
 
 // ─── Request Records ──────────────────────────────────────
 public record CreateAppointmentRequest(
-    Guid ClientId,
+    Guid BranchId,
     Guid StaffId,
-    Guid TenantId,
-    string Service,
+    Guid ClientId,
+    Guid StaffServiceId,
     DateTime ScheduledAt,
     string? CreatedVia);
 
