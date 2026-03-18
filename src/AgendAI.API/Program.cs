@@ -34,15 +34,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             OnTokenValidated = context =>
             {
-                if (context.Principal?.Identity is not ClaimsIdentity identity) 
+                if (context.Principal?.Identity is not ClaimsIdentity identity)
                     return Task.CompletedTask;
 
-                // Keycloak coloca roles em realm_access.roles por padrão
-                // Extraímos e mapeamos para ClaimTypes.Role do .NET
-                var realmAccess = context.Principal
-                    .FindFirstValue("realm_access");
-
-                if (realmAccess is null) 
+                var realmAccess = context.Principal.FindFirstValue("realm_access");
+                if (realmAccess is null)
                     return Task.CompletedTask;
 
                 using var doc = JsonDocument.Parse(realmAccess);
@@ -83,6 +79,11 @@ app.MapGet("/health", () => Results.Ok(new { status = "healthy", app = "AgendAI 
 
 var v1 = app.MapGroup("/api/v1");
 v1.MapGet("/", () => Results.Ok(new { message = "AgendAI API v1" }));
+v1.MapGroup("/tenants").MapTenantEndpoints();
+v1.MapGroup("/branches").MapBranchEndpoints();
+v1.MapGroup("/staff").MapStaffEndpoints();
+v1.MapGroup("/clients").MapClientEndpoints();
+v1.MapGroup("/services").MapServiceCatalogEndpoints();
 v1.MapGroup("/scheduling").MapSchedulingEndpoints();
 
 app.Run();

@@ -1,8 +1,5 @@
 services:
 
-  # ─────────────────────────────────────────
-  # PostgreSQL
-  # ─────────────────────────────────────────
   postgres:
     image: postgres:16
     restart: unless-stopped
@@ -14,22 +11,20 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # ─────────────────────────────────────────
-  # Keycloak
-  # ─────────────────────────────────────────
   keycloak:
     image: quay.io/keycloak/keycloak:24.0
     restart: unless-stopped
     command: start-dev
     environment:
       KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
       KC_DB_USERNAME: ${POSTGRES_USER}
       KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
