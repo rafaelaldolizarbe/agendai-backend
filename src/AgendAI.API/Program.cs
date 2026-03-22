@@ -16,6 +16,20 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<AgendAIDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
+// ─── CORS ─────────────────────────────────────────────────
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AgendAI", policy =>
+    {
+        policy
+            .WithOrigins(
+                "http://localhost:3000",
+                "http://localhost:3001")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -72,6 +86,18 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
+// ─── CORS antes do Auth ───────────────────────────────────
+app.UseCors("AgendAI");
+app.Use(async (context, next) =>
+{
+    if (context.Request.Method == "OPTIONS")
+    {
+        context.Response.StatusCode = 200;
+        await context.Response.CompleteAsync();
+        return;
+    }
+    await next();
+});
 app.UseAuthentication();
 app.UseAuthorization();
 
