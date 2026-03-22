@@ -84,6 +84,7 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
+    
 }
 
 // ─── CORS antes do Auth ───────────────────────────────────
@@ -111,5 +112,13 @@ v1.MapGroup("/staff").MapStaffEndpoints();
 v1.MapGroup("/clients").MapClientEndpoints();
 v1.MapGroup("/services").MapServiceCatalogEndpoints();
 v1.MapGroup("/scheduling").MapSchedulingEndpoints();
+// ─── Migrations + Seed (desenvolvimento) ─────────────────
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<AgendAIDbContext>();
+    await db.Database.MigrateAsync();
+    await Seed.RunAsync(db);
+}
 
 app.Run();
